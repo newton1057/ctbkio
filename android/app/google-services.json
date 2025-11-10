@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "314113533753",
+    "project_id": "kio-ctb",
+    "storage_bucket": "kio-ctb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314113533753:android:5f84999ea0fb9d4b19aae8",
+        "android_client_info": {
+          "package_name": "com.kio.org.ctbkio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3Q_x3t2DJpulb3l1PgBLIOIuRINwliwg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
