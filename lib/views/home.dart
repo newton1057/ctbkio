@@ -6,7 +6,7 @@ import 'package:ctbkio/models/feature.dart';
 import 'package:ctbkio/utils/cart.dart';
 import 'package:ctbkio/utils/home/helpButton.dart';
 import 'package:ctbkio/utils/langPill.dart';
-import 'package:ctbkio/utils/searchBar.dart';
+import 'package:ctbkio/utils/search_bar.dart';
 import 'package:ctbkio/views/catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
