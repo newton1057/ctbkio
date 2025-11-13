@@ -293,6 +293,7 @@ class _Filters extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: colorScheme.surface.withValues(alpha: 0.85),
+            borderRadius: radius,
             border: Border.all(color: const Color(0xFFE4E7EC)),
           ),
           child: SingleChildScrollView(
