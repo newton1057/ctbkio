@@ -1,18 +1,12 @@
-// KIOSKO DEMO – v4.0 VISUAL DESIGN UPGRADE
-// Cambios v4.0:
-// - Rediseño completo de la UI para un look moderno y atractivo para terminales públicas.
-// - Nueva paleta de colores (azules y púrpuras) y fondo con gradiente.
-// - Tema global mejorado: botones, inputs y tarjetas estilizadas.
-// - Rediseño de tarjetas de categoría en la Home con gradientes.
-// - Rediseño de tarjetas de producto con superposición de imagen y mejor legibilidad.
-// - Mejora visual en la página del carrito, reintroduciendo la imagen del producto.
-// - Pantallas de checkout y pago con un diseño más limpio y profesional.
-// - Pantallas de simulación de pago más inmersivas y claras.
-// --------------------------------------------------------------------
-
 import 'dart:async';
 import 'dart:math';
-
+import 'package:ctbkio/models/category.dart';
+import 'package:ctbkio/models/feature.dart';
+import 'package:ctbkio/utils/appBackground.dart';
+import 'package:ctbkio/utils/cart.dart';
+import 'package:ctbkio/utils/featureCard.dart';
+import 'package:ctbkio/utils/langPill.dart';
+import 'package:ctbkio/views/home.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,8 +24,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF4A90E2);
-    const secondaryColor = Color(0xFF50E3C2);
+    const primaryColor = Color(0xFF115D5D);
+    const secondaryColor = Colors.white;
     final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -39,10 +33,11 @@ class _MyAppState extends State<MyApp> {
         seedColor: primaryColor,
         primary: primaryColor,
         secondary: secondaryColor,
-        background: const Color(0xFFF4F7FC),
-        surface: Colors.white,
+        // ignore: deprecated_member_use
+        background: const Color(0XFFFAFAFA),
+        surface: const Color(0XFFFAFAFA),
       ),
-      scaffoldBackgroundColor: Colors.transparent, // Para permitir el gradiente
+      scaffoldBackgroundColor: Colors.transparent,
       textTheme: GoogleFonts.interTextTheme(
         ThemeData(brightness: Brightness.light).textTheme,
       ).copyWith(
@@ -94,26 +89,6 @@ class _MyAppState extends State<MyApp> {
         theme: base,
         home: const LibraryHome(),
       ),
-    );
-  }
-}
-
-/// Widget para el fondo degradado de la aplicación
-class AppBackground extends StatelessWidget {
-  final Widget child;
-  const AppBackground({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFEAF2FF), Color(0xFFF4F7FC)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: child,
     );
   }
 }
@@ -220,8 +195,6 @@ class CartItem {
   CartItem copyWith({Product? product, int? qty}) =>
       CartItem(product: product ?? this.product, qty: qty ?? this.qty);
 }
-
-enum KioCategory { conecta, vive, institucional, impulsa }
 
 String categoryName(KioCategory c, Language lang) {
   switch (c) {
@@ -548,361 +521,7 @@ final products = <Product>[
   ),
 ];
 
-// ---------------------------------------------------------------
-// HOME
-// ---------------------------------------------------------------
-class LibraryHome extends StatelessWidget {
-  const LibraryHome({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final items = <_Feature>[
-      _Feature('Conecta', const Color(0xFF4A90E2), const Color(0xFF2C578A), Icons.hub, KioCategory.conecta),
-      _Feature('Vive', const Color(0xFF50E3C2), const Color(0xFF2A8C74), Icons.beach_access, KioCategory.vive),
-      _Feature('Institucional', const Color(0xFFF5A623), const Color(0xFFB0781A),Icons.account_balance, KioCategory.institucional),
-      _Feature('Impulsa', const Color(0xFFBD10E0), const Color(0xFF790A93), Icons.rocket_launch, KioCategory.impulsa),
-    ];
-
-    return Scaffold(
-      body: AppBackground(
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Top row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const _LangPill(),
-                        const _CartButton(),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    // Title
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Column(
-                        children: [
-                          Text(
-                            t(context, 'Welcome to your Digital Kiosk!', '¡Bienvenido a tu Kiosko Digital!'),
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.displaySmall!.copyWith(color: const Color(0xFF1D2939),),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            t(context, 'What would you like to explore today?', '¿Qué te gustaría explorar hoy?'),
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                                color: const Color(0xFF475467),
-                                fontWeight: FontWeight.normal),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // Search
-                    const _SearchBar(),
-                    const SizedBox(height: 32),
-                    // Grid 2x2
-                    Expanded(
-                      child: GridView.builder(
-                        padding: EdgeInsets.zero,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: items.length,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
-                          childAspectRatio: 0.9,
-                        ),
-                        itemBuilder: (context, i) {
-                          final f = items[i];
-                          return _FeatureCard(
-                            title: f.title,
-                            gradient: LinearGradient(
-                              colors: [f.colorStart, f.colorEnd],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            icon: f.icon,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => CatalogPage(category: f.category),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------
-// SEARCH
-// ---------------------------------------------------------------
-class _SearchBar extends StatefulWidget {
-  const _SearchBar();
-  @override
-  State<_SearchBar> createState() => _SearchBarState();
-}
-
-class _SearchBarState extends State<_SearchBar> {
-  final ctrl = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 8,
-      shadowColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-      borderRadius: BorderRadius.circular(16),
-      child: TextField(
-        controller: ctrl,
-        onSubmitted: (txt) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) =>
-                  CatalogPage(query: txt.trim().isEmpty ? null : txt.trim()),
-            ),
-          );
-        },
-        style: const TextStyle(fontWeight: FontWeight.w500),
-        decoration: InputDecoration(
-          hintText: t(
-            context,
-            'Search experiences, services, tours…',
-            'Busca experiencias, servicios, tours…',
-          ),
-          hintStyle: const TextStyle(color: Color(0xFF667085)),
-          prefixIcon:
-              Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------
-// CATALOG PAGE
-// ---------------------------------------------------------------
-class CatalogPage extends StatefulWidget {
-  final KioCategory? category;
-  final String? query;
-  const CatalogPage({super.key, this.category, this.query});
-
-  @override
-  State<CatalogPage> createState() => _CatalogPageState();
-}
-
-class _CatalogPageState extends State<CatalogPage> {
-  String? _query;
-  KioCategory? _category;
-
-  @override
-  void initState() {
-    super.initState();
-    _query = widget.query;
-    _category = widget.category;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final lang = KioScope.of(context).lang;
-
-    List<Product> list = products;
-    if (_category != null) {
-      list = list.where((p) => p.category == _category).toList();
-    }
-    if ((_query ?? '').isNotEmpty) {
-      final q = _query!.toLowerCase();
-      list = list
-          .where(
-            (p) =>
-                p.title(lang).toLowerCase().contains(q) ||
-                p.desc(lang).toLowerCase().contains(q),
-          )
-          .toList();
-    }
-
-    return Scaffold(
-      body: AppBackground(
-        child: Column(
-          children: [
-            // Custom App Bar
-            SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    BackButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.white),
-                        iconColor: MaterialStateProperty.all(Theme.of(context).colorScheme.primary),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _category == null
-                            ? t(context, 'All Services', 'Todos los Servicios')
-                            : categoryName(_category!, lang),
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ),
-                    const _CartButton(),
-                  ],
-                ),
-              ),
-            ),
-            _Filters(
-              active: _category,
-              onTap: (c) => setState(() => _category = c),
-            ),
-            Expanded(
-              child: list.isEmpty 
-              ? Center(child: Text(t(context, 'No results found', 'No se encontraron resultados')))
-              : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: list.length,
-                itemBuilder: (context, i) => Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: _ProductListCard(product: list[i]),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProductListCard extends StatelessWidget {
-  final Product product;
-  const _ProductListCard({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final lang = KioScope.of(context).lang;
-    return InkWell(
-      onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => ProductPage(product: product))),
-      borderRadius: BorderRadius.circular(24),
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image with overlay
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(
-                      product.imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return const _ImageSkeleton();
-                      },
-                      errorBuilder: (context, error, stack) {
-                        return const _ImageError();
-                      },
-                    ),
-                    // Gradient overlay
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.black.withOpacity(0.6),
-                            Colors.transparent
-                          ],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.center,
-                        ),
-                      ),
-                    ),
-                    // Price Tag
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '\$${product.priceUsd.toStringAsFixed(0)}',
-                          style: GoogleFonts.inter(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.title(lang),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800, letterSpacing: -0.5),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product.desc(lang),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF475467), height: 1.4),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: -4,
-                    children: [
-                      for (final e in product.emojis)
-                        Text(e, style: const TextStyle(fontSize: 18)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _ImageSkeleton extends StatelessWidget {
   const _ImageSkeleton();
@@ -930,89 +549,7 @@ class _ImageError extends StatelessWidget {
   }
 }
 
-class _Filters extends StatelessWidget {
-  final KioCategory? active;
-  final ValueChanged<KioCategory?> onTap;
-  const _Filters({required this.active, required this.onTap});
 
-  @override
-  Widget build(BuildContext context) {
-    final lang = KioScope.of(context).lang;
-    final cats = KioCategory.values;
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          _FilterChip(
-            label: t(context, 'All', 'Todo'),
-            selected: active == null,
-            onTap: () => onTap(null),
-          ),
-          const SizedBox(width: 10),
-          for (final c in cats) ...[
-            _FilterChip(
-              label: categoryName(c, lang),
-              selected: active == c,
-              onTap: () => onTap(c),
-            ),
-            const SizedBox(width: 10),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(99),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? Theme.of(context).colorScheme.primary
-              : Colors.white,
-          borderRadius: BorderRadius.circular(99),
-          border: Border.all(
-            color: selected
-                ? Theme.of(context).colorScheme.primary
-                : const Color(0xFFE5E7EB),
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : [],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            color: selected ? Colors.white : const Color(0xFF344054),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ---------------------------------------------------------------
 // PRODUCT DETAIL + BOOKING SHEET
@@ -1048,7 +585,7 @@ class ProductPage extends StatelessWidget {
               actions: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: _CartButton(
+                  child: CartButton(
                       backgroundColor: Colors.white.withOpacity(0.8)),
                 )
               ],
@@ -1280,52 +817,7 @@ class _QtyPicker extends StatelessWidget {
 // ---------------------------------------------------------------
 // CART
 // ---------------------------------------------------------------
-class _CartButton extends StatelessWidget {
-  final Color? backgroundColor;
-  const _CartButton({this.backgroundColor});
-  @override
-  Widget build(BuildContext context) {
-    final state = KioScope.of(context);
-    return Stack(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.shopping_bag_outlined),
-          iconSize: 28,
-          style: IconButton.styleFrom(
-            backgroundColor: backgroundColor,
-            foregroundColor: Theme.of(context).colorScheme.primary,
-          ),
-          onPressed: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const CartPage())),
-        ),
-        if (state.cart.isNotEmpty)
-          Positioned(
-            right: 4,
-            top: 4,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: Colors.redAccent,
-                shape: BoxShape.circle,
-              ),
-              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-              child: Center(
-                child: Text(
-                  '${state.cart.fold<int>(0, (sum, item) => sum + item.qty)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
+
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -1920,121 +1412,5 @@ class _PaymentResultView extends StatelessWidget {
 // ---------------------------------------------------------------
 // SHARED WIDGETS
 // ---------------------------------------------------------------
-class _LangPill extends StatelessWidget {
-  final bool padded;
-  const _LangPill({this.padded = true});
 
-  @override
-  Widget build(BuildContext context) {
-    final state = KioScope.of(context);
-    final current = state.lang;
 
-    final langs = const [
-      (Language.en, 'English', '🇺🇸'),
-      (Language.es, 'Español', '🇲🇽'),
-    ];
-
-    return PopupMenuButton<Language>(
-      tooltip: 'Change language',
-      offset: const Offset(0, 50),
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      constraints: const BoxConstraints(minWidth: 220),
-      onSelected: (opt) => state.lang = opt,
-      itemBuilder: (ctx) => [
-        for (final (lang, name, flag) in langs)
-          PopupMenuItem<Language>(
-            value: lang,
-            child: Row(
-              children: [
-                Text(flag, style: const TextStyle(fontSize: 20)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(name, style: GoogleFonts.inter(fontSize: 16)),
-                ),
-                if (lang == current) const Icon(Icons.check, size: 18),
-              ],
-            ),
-          ),
-      ],
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              current == Language.en ? '🇺🇸' : '🇲🇽',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              current == Language.en ? 'EN' : 'ES',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeatureCard extends StatelessWidget {
-  final Gradient gradient;
-  final String title;
-  final IconData icon;
-  final VoidCallback? onTap;
-  const _FeatureCard({
-    required this.gradient,
-    required this.title,
-    required this.icon,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(gradient: gradient),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 64, color: Colors.white.withOpacity(0.9)),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Feature {
-  final String title;
-  final Color colorStart;
-  final Color colorEnd;
-  final IconData icon;
-  final KioCategory category;
-  const _Feature(this.title, this.colorStart, this.colorEnd, this.icon, this.category);
-}
